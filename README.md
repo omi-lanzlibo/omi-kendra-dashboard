@@ -14,7 +14,6 @@ To run this project locally, clone the repository and install the dependencies:
 
 bash
 Copy code
-git clone https://github.com/yourusername/kendra-dashboard.git
 cd kendra-dashboard
 npm install
 npm run dev
