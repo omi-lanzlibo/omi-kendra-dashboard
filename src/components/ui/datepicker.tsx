@@ -44,14 +44,10 @@ export function DatePickerDemo() {
   }
 
   const handleDone = () => {
-    // Convert the Date object to a string
-    const dateString = date ? format(date, "PPP") : "";
-  
-    // Update the selectedDate state with the dateString
-    setSelectedDate(dateString);
-
-    // Log the selected date as a string to the console
-    console.log("Selected date (string):", dateString);
+       // Reset the date when the "Cancel" button is clicked
+       setDate(undefined)
+       // Close the popover
+       setIsOpen(false)
   }
 
   return (
