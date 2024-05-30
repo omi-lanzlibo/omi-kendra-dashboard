@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 interface CardSetNumberOfQueriesProps {
-  onChange: (value: number) => void;
+  onChange: (value: any) => void;
   disabled: boolean;
 }
 
@@ -50,5 +50,3 @@ export function CardSetNumberOfQueries({
     </div>
   );
 }
-
-export default CardSetNumberOfQueries;
