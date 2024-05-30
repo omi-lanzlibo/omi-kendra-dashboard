@@ -1,30 +1,12 @@
-import Link from "next/link"
+import Link from "next/link";
 import {
-  Bell,
   CircleUser,
-  Home,
   LayoutDashboardIcon,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
   SettingsIcon,
-  ShoppingCart,
   ToggleRight,
-  Users,
   WalletCards,
-} from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,12 +14,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { CardWithForm } from "./card"
-import CardNoOfQueries from "./apicall"
-import { SwitchForm } from "./formSwitch"
+} from "@/components/ui/dropdown-menu";
+
+import { SwitchForm } from "./formSwitch";
 
 export function KendraSwitchScreen() {
   return (
@@ -49,28 +28,24 @@ export function KendraSwitchScreen() {
               <WalletCards className="h-6 w-6" />
               <span className="">Kendra Dashboard</span>
             </Link>
-            {/* <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button> */}
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            <Link
+              <Link
                 href="/dashboard"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                >
+              >
                 <LayoutDashboardIcon className="h-4 w-4" />
                 Dashboard
               </Link>
               <Link
                 href="/switch"
                 className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
-                >
+              >
                 <ToggleRight className="h-4 w-4" />
-                Kendra Switch
+                Manual Override
               </Link>
-             
+
               <Link
                 href="#"
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
@@ -83,7 +58,7 @@ export function KendraSwitchScreen() {
         </div>
       </div>
       <div className="flex flex-col">
-      <header className="flex h-14 items-center justify-end gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center justify-end gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
@@ -100,15 +75,16 @@ export function KendraSwitchScreen() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
+
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           <div className="flex items-center">
-            <h1 className="text-lg font-semibold md:text-2xl">AWS Kendra Switch</h1>
+            <h1 className="text-lg font-semibold md:text-2xl mr-4">
+              Manual Override
+            </h1>
           </div>
-  
           <SwitchForm></SwitchForm>
-  
         </main>
       </div>
     </div>
-  )
+  );
 }

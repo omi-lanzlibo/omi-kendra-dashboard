@@ -5,6 +5,7 @@ import { ToggleSwitchComponent } from "@/components/toggle-switch";
 export default function Toggle(){
   return (
       <KendraSwitchScreen>
+        
       </KendraSwitchScreen>
   )
 }
