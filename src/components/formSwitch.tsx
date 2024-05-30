@@ -17,7 +17,8 @@ export function SwitchForm() {
   const [isKendraTurnOff, setKendraTurnOff] = useState(false);
   const [isOverrideKendra, setOverrideKendra] = useState(false);
 
-  const [maxQuery, setMaxQuery] = useState(100); // Initialize with 1000 as the default value
+  const [maxQuery, setMaxQuery] = useState<any>(); // Initialize with 1000 as the default value
+  const [fetchMaxquery, setFetchMaxQuery] = useState();
 
   const fetchData = async () => {
     try {
@@ -31,7 +32,7 @@ export function SwitchForm() {
       const data = result.data;
       setOverrideKendra(data.manualOverride.overrideKendraControl);
       setKendraTurnOff(data.manualOverride.turnOffKendra);
-      // setMaxQuery(data.maxQuery);
+      setFetchMaxQuery(data.maxQuery);
     } catch (error) {
       console.error("Error fetching the data:", error);
     }
@@ -79,7 +80,7 @@ export function SwitchForm() {
               overrideKendraControl: isOverrideKendra,
               turnOffKendra: isKendraTurnOff,
             },
-            maxQuery,
+            maxQuery: isOverrideKendra ? maxQuery : fetchMaxquery,
           }),
         }
       );
