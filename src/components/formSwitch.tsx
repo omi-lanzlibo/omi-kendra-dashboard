@@ -1,75 +1,153 @@
-"use client"
-
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-
-import { Button } from "@/components/ui/button"
+"use client";
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form"
-import { Switch } from "@/components/ui/switch"
-import { toast } from "@/components/ui/use-toast"
-
-const FormSchema = z.object({
-  marketing_emails: z.boolean().default(false).optional(),
-  security_emails: z.boolean(),
-})
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { SwitchDialog } from "./switchDialog";
+import { CardSetNumberOfQueries } from "./cardNumberOfQueries";
+import { toast } from "./ui/use-toast";
 
 export function SwitchForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      security_emails: true,
-    },
-  })
+  const [isKendraTurnOff, setKendraTurnOff] = useState(false);
+  const [isOverrideKendra, setOverrideKendra] = useState(false);
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
-  }
+  const [maxQuery, setMaxQuery] = useState(100); // Initialize with 1000 as the default value
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch the data.");
+      }
+      const result = await response.json();
+      const data = result.data;
+      setOverrideKendra(data.manualOverride.overrideKendraControl);
+      setKendraTurnOff(data.manualOverride.turnOffKendra);
+      // setMaxQuery(data.maxQuery);
+    } catch (error) {
+      console.error("Error fetching the data:", error);
+    }
+  };
+
+  const fetchDataTurnOffKendra = async () => {
+    try {
+      const response = await fetch(
+        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch the data.");
+      }
+      const result = await response.json();
+      const data = result.data;
+      setKendraTurnOff(data.manualOverride.turnOffKendra);
+    } catch (error) {
+      console.error("Error fetching the data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSwitchChange = async (checked: boolean) => {
+    setOverrideKendra(checked);
+    if (!checked) {
+      setKendraTurnOff(false);
+    }
+    await fetchDataTurnOffKendra();
+  };
+
+  const handlePostRequest = async () => {
+    try {
+      const response = await fetch(
+        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            manualOverride: {
+              overrideKendraControl: isOverrideKendra,
+              turnOffKendra: isKendraTurnOff,
+            },
+            maxQuery,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to make the request.");
+      }
+
+      console.log("Request successfully sent!");
+      toast({
+        title: "Save successfully!",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error making the request:", error);
+    }
+  };
+
+  const handleSaveQuery = (query: number) => {
+    setMaxQuery(query);
+    console.log("Max query set to:", query);
+  };
+
+  const handleCancel = () => {
+    console.log("Action canceled");
+  };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
-        <div>
-          <div className="space-y-3">
-            <FormField
-              control={form.control}
-              name="marketing_emails"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>AWS Kendra</FormLabel>
-                    <FormDescription>
-                    You can toggle on and off the aws kendra        
-                      </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <div className="flex items-center">
+            <h1 className="text-lg font-semibold md:text-2xl mr-4">
+              Override Kendra Control
+            </h1>
+            <Switch
+              checked={isOverrideKendra}
+              onCheckedChange={handleSwitchChange}
             />
-           
           </div>
-        </div>
+        </CardTitle>
+      </CardHeader>
 
-      </form>
-    </Form>
-  )
+      <CardContent className="grid gap-4">
+        <div className="flex items-center space-x-4 rounded-md border p-4">
+          <div className="flex-1 space-y-1">
+            <p className="text-sm font-medium leading-none">Turn Off Kendra</p>
+            <p className="text-sm text-muted-foreground">
+              {
+                "Kendra's features are replaced with standard legacy search when turned off."
+              }
+            </p>
+          </div>
+          <SwitchDialog
+            isDisabledOverride={!isOverrideKendra}
+            isKendraTurnOff={isKendraTurnOff}
+            setKendraTurnOff={setKendraTurnOff}
+          />
+        </div>
+      </CardContent>
+
+      <CardSetNumberOfQueries
+        onChange={setMaxQuery}
+        disabled={!isOverrideKendra}
+      />
+
+      <CardFooter className="flex justify-end py-5">
+        <Button onClick={handlePostRequest}>Save</Button>
+      </CardFooter>
+    </Card>
+  );
 }
