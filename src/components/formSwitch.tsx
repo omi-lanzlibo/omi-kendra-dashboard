@@ -21,8 +21,8 @@ export function SwitchForm() {
   const [isKendraTurnOff, setKendraTurnOff] = useState(false);
   const [isOverrideKendra, setOverrideKendra] = useState(false);
   const [initialData, setInitialData] = useState<ManualOverride>({
-    overrideKendraControl: false,
-    turnOffKendra: false,
+    overrideKendraControl: isOverrideKendra,
+    turnOffKendra: isKendraTurnOff,
   });
   const [isModified, setIsModified] = useState(false);
 
@@ -58,50 +58,52 @@ export function SwitchForm() {
   const handleSwitchChange = async (checked: boolean) => {
     setOverrideKendra(checked);
   };
-
   const handlePostRequest = async () => {
     if (!isModified) {
       toast({
         title: "No changes detected.",
         variant: "default",
       });
-
       console.log("No changes detected. No request made.");
       return;
-    } else {
-      try {
-        const response = await fetch(
-          "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+    }
+
+    try {
+      const response = await fetch(
+        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            manualOverride: {
+              overrideKendraControl: isOverrideKendra,
+              turnOffKendra: isKendraTurnOff,
             },
-            body: JSON.stringify({
-              manualOverride: {
-                overrideKendraControl: isOverrideKendra,
-                turnOffKendra: isKendraTurnOff,
-              },
-            }),
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to make the request.");
+          }),
         }
-        console.log("Request successfully sent!");
-        toast({
-          title: "Save successfully!",
-          variant: "default",
-        });
-        fetchData();
-        // Refetch data after a successful request
-      } catch (error) {
-        console.error("Error making the request:", error);
-        toast({
-          title: "Error making the request",
-          variant: "destructive",
-        });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to make the request.");
       }
+      setInitialData({
+        overrideKendraControl: isOverrideKendra,
+        turnOffKendra: isKendraTurnOff,
+      });
+
+      console.log("Request successfully sent!");
+      toast({
+        title: "Save successfully!",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Error making the request:", error);
+      toast({
+        title: "Error making the request",
+        variant: "destructive",
+      });
     }
   };
 
