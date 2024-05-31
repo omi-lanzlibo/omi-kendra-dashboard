@@ -38,21 +38,21 @@ export function SwitchForm() {
     }
   };
 
-  const fetchDataTurnOffKendra = async () => {
-    try {
-      const response = await fetch(
-        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch the data.");
-      }
-      const result = await response.json();
-      const data = result.data;
-      setKendraTurnOff(data.manualOverride.turnOffKendra);
-    } catch (error) {
-      console.error("Error fetching the data:", error);
-    }
-  };
+  // const fetchDataTurnOffKendra = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error("Failed to fetch the data.");
+  //     }
+  //     const result = await response.json();
+  //     const data = result.data;
+  //     setKendraTurnOff(data.manualOverride.turnOffKendra);
+  //   } catch (error) {
+  //     console.error("Error fetching the data:", error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchData();
@@ -60,10 +60,11 @@ export function SwitchForm() {
 
   const handleSwitchChange = async (checked: boolean) => {
     setOverrideKendra(checked);
-    if (!checked) {
-      setKendraTurnOff(false);
-    }
-    await fetchDataTurnOffKendra();
+
+    // if (!checked) {
+    //   setKendraTurnOff(false);
+    // }
+    // await fetchDataTurnOffKendra();
   };
 
   const handlePostRequest = async () => {
@@ -141,10 +142,10 @@ export function SwitchForm() {
         </div>
       </CardContent>
 
-      <CardSetNumberOfQueries
+      {/* <CardSetNumberOfQueries
         onChange={setMaxQuery}
         disabled={!isOverrideKendra}
-      />
+      /> */}
 
       <CardFooter className="flex justify-end py-5">
         <Button onClick={handlePostRequest}>Save</Button>
