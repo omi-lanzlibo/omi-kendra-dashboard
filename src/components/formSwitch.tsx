@@ -21,8 +21,8 @@ export function SwitchForm() {
   const [isKendraTurnOff, setKendraTurnOff] = useState(false);
   const [isOverrideKendra, setOverrideKendra] = useState(false);
   const [initialData, setInitialData] = useState<ManualOverride>({
-    overrideKendraControl: isOverrideKendra,
-    turnOffKendra: isKendraTurnOff,
+    overrideKendraControl: false,
+    turnOffKendra: false,
   });
   const [isModified, setIsModified] = useState(false);
 
@@ -88,13 +88,12 @@ export function SwitchForm() {
         if (!response.ok) {
           throw new Error("Failed to make the request.");
         }
-        fetchData();
         console.log("Request successfully sent!");
         toast({
           title: "Save successfully!",
           variant: "default",
         });
-
+        fetchData();
         // Refetch data after a successful request
       } catch (error) {
         console.error("Error making the request:", error);
