@@ -10,15 +10,21 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { SwitchDialog } from "./switchDialog";
-import { CardSetNumberOfQueries } from "./cardNumberOfQueries";
 import { toast } from "./ui/use-toast";
+
+interface ManualOverride {
+  overrideKendraControl: boolean;
+  turnOffKendra: boolean;
+}
 
 export function SwitchForm() {
   const [isKendraTurnOff, setKendraTurnOff] = useState(false);
   const [isOverrideKendra, setOverrideKendra] = useState(false);
-
-  const [maxQuery, setMaxQuery] = useState<any>(); // Initialize with 1000 as the default value
-  const [fetchMaxquery, setFetchMaxQuery] = useState();
+  const [initialData, setInitialData] = useState<ManualOverride>({
+    overrideKendraControl: false,
+    turnOffKendra: false,
+  });
+  const [isModified, setIsModified] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -30,44 +36,40 @@ export function SwitchForm() {
       }
       const result = await response.json();
       const data = result.data;
+      setInitialData(data.manualOverride);
       setOverrideKendra(data.manualOverride.overrideKendraControl);
       setKendraTurnOff(data.manualOverride.turnOffKendra);
-      setFetchMaxQuery(data.maxQuery);
     } catch (error) {
       console.error("Error fetching the data:", error);
     }
   };
 
-  // const fetchDataTurnOffKendra = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
-  //     );
-  //     if (!response.ok) {
-  //       throw new Error("Failed to fetch the data.");
-  //     }
-  //     const result = await response.json();
-  //     const data = result.data;
-  //     setKendraTurnOff(data.manualOverride.turnOffKendra);
-  //   } catch (error) {
-  //     console.error("Error fetching the data:", error);
-  //   }
-  // };
-
   useEffect(() => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setIsModified(
+      initialData.overrideKendraControl !== isOverrideKendra ||
+        initialData.turnOffKendra !== isKendraTurnOff
+    );
+  }, [isOverrideKendra, isKendraTurnOff, initialData]);
+
   const handleSwitchChange = async (checked: boolean) => {
     setOverrideKendra(checked);
-
-    // if (!checked) {
-    //   setKendraTurnOff(false);
-    // }
-    // await fetchDataTurnOffKendra();
   };
 
   const handlePostRequest = async () => {
+    if (!isModified) {
+      toast({
+        title: "No changes detected.",
+        variant: "default",
+      });
+
+      console.log("No changes detected. No request made.");
+      return;
+    }
+
     try {
       const response = await fetch(
         "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold",
@@ -81,7 +83,6 @@ export function SwitchForm() {
               overrideKendraControl: isOverrideKendra,
               turnOffKendra: isKendraTurnOff,
             },
-            maxQuery: isOverrideKendra ? maxQuery : fetchMaxquery,
           }),
         }
       );
@@ -94,18 +95,16 @@ export function SwitchForm() {
         title: "Save successfully!",
         variant: "default",
       });
+
+      // Refetch data after a successful request
+      fetchData();
     } catch (error) {
       console.error("Error making the request:", error);
+      toast({
+        title: "Error making the request",
+        variant: "destructive",
+      });
     }
-  };
-
-  const handleSaveQuery = (query: number) => {
-    setMaxQuery(query);
-    console.log("Max query set to:", query);
-  };
-
-  const handleCancel = () => {
-    console.log("Action canceled");
   };
 
   return (
@@ -142,12 +141,7 @@ export function SwitchForm() {
         </div>
       </CardContent>
 
-      {/* <CardSetNumberOfQueries
-        onChange={setMaxQuery}
-        disabled={!isOverrideKendra}
-      /> */}
-
-      <CardFooter className="flex justify-end py-5">
+      <CardFooter className="flex justify-end">
         <Button onClick={handlePostRequest}>Save</Button>
       </CardFooter>
     </Card>
