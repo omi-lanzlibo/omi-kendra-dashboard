@@ -11,5 +11,6 @@ export default function Home() {
   //     window.location.href = "/dashboard"; // Redirect client-side
   //   }
   // }, []);
+  // chore
   return <DashboardScreen></DashboardScreen>;
 }
