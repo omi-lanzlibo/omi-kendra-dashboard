@@ -82,7 +82,7 @@ jobs:
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_KENDRA_API: ${{ secrets.NEXT_PUBLIC_KENDRA_API }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
