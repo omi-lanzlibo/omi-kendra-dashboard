@@ -25,28 +25,26 @@ export function SwitchForm() {
     turnOffKendra: isKendraTurnOff,
   });
   const [isModified, setIsModified] = useState(false);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(
-        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch the data.");
-      }
-      const result = await response.json();
-      const data = result.data;
-      setInitialData(data.manualOverride);
-      setOverrideKendra(data.manualOverride.overrideKendraControl);
-      setKendraTurnOff(data.manualOverride.turnOffKendra);
-    } catch (error) {
-      console.error("Error fetching the data:", error);
-    }
-  };
+  const KENDRA_API = `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(KENDRA_API);
+        if (!response.ok) {
+          throw new Error("Failed to fetch the data.");
+        }
+        const result = await response.json();
+        const data = result.data;
+        setInitialData(data.manualOverride);
+        setOverrideKendra(data.manualOverride.overrideKendraControl);
+        setKendraTurnOff(data.manualOverride.turnOffKendra);
+      } catch (error) {
+        console.error("Error fetching the data:", error);
+      }
+    };
     fetchData();
-  }, []);
+  }, [KENDRA_API]);
 
   useEffect(() => {
     setIsModified(
@@ -69,21 +67,18 @@ export function SwitchForm() {
     }
 
     try {
-      const response = await fetch(
-        "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      const response = await fetch(KENDRA_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          manualOverride: {
+            overrideKendraControl: isOverrideKendra,
+            turnOffKendra: isKendraTurnOff,
           },
-          body: JSON.stringify({
-            manualOverride: {
-              overrideKendraControl: isOverrideKendra,
-              turnOffKendra: isKendraTurnOff,
-            },
-          }),
-        }
-      );
+        }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to make the request.");

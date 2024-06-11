@@ -8,11 +8,14 @@ import {
   CardContent,
 } from "./ui/card";
 import { format, parseISO } from "date-fns";
-import { Skeleton } from "./ui/skeleton";
+import { SetNumberOfQueries } from "./setNumberOfQueries";
 
 interface Props {
   date: string; // Date prop
   maxQueryPerDay: number;
+  handleSave: (maxQueries: number) => void;
+  isDialogOpen: boolean;
+  setIsDialogOpen: (isOpen: boolean) => void;
 }
 
 interface ResponseItem {
@@ -21,9 +24,15 @@ interface ResponseItem {
   count: { N: string };
 }
 
-export default function CardNoOfQueries({ date, maxQueryPerDay }: Props) {
+export default function DashboardCards({
+  date,
+  maxQueryPerDay,
+  handleSave,
+  isDialogOpen,
+  setIsDialogOpen,
+}: Props) {
   const [responseItems, setResponseItems] = useState<ResponseItem[]>([]);
-  const [displayDate, setDisplayDate] = useState<string>(""); // State to hold the date
+  const [displayDate, setDisplayDate] = useState<string>("");
 
   const callAPI = async (date: string) => {
     try {
@@ -37,11 +46,11 @@ export default function CardNoOfQueries({ date, maxQueryPerDay }: Props) {
           pk: item.pk,
           sk: item.sk,
           count: item.count,
-          date: data.data.date, // Assign the extracted date to each item
+          date: data.data.date,
         }));
-        setResponseItems(items as ResponseItem[]); // Set the items array in state
+        setResponseItems(items as ResponseItem[]);
         const formattedDate = format(parseISO(data.data.date), "PPP");
-        setDisplayDate(formattedDate); // Set the displayDate state
+        setDisplayDate(formattedDate);
       }
     } catch (err) {
       console.log(err);
@@ -49,16 +58,15 @@ export default function CardNoOfQueries({ date, maxQueryPerDay }: Props) {
   };
 
   useEffect(() => {
-    callAPI(date); // Make API call with the provided date
-  }, [date]); // Call useEffect whenever the date prop changes
+    callAPI(date);
+  }, [date]);
 
   return (
     <div>
       <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-2 xl:grid-cols-2">
         <Card x-chunk="dashboard-05-chunk-1">
-          <CardHeader className="pb-2">
-            <CardDescription>{displayDate}</CardDescription>{" "}
-            {/* Display the date */}
+          <CardHeader className="pb-2 flex flex-col">
+            <CardDescription className="py-2">{displayDate}</CardDescription>
             <CardTitle className="text-4xl">
               {responseItems.length > 0 ? responseItems[0].count.N : 0}
             </CardTitle>
@@ -67,11 +75,18 @@ export default function CardNoOfQueries({ date, maxQueryPerDay }: Props) {
             <div className="text-xs text-muted-foreground">No. of queries</div>
           </CardContent>
         </Card>
+
         <Card x-chunk="dashboard-05-chunk-1">
-          <CardHeader className="pb-2">
-            <CardDescription>Per day</CardDescription>
-            <CardTitle className="text-4xl">{maxQueryPerDay}</CardTitle>{" "}
-            {/* Assuming this is a static value */}
+          <CardHeader className="pb-2 flex flex-col">
+            <div className="flex justify-between items-center">
+              <CardDescription className="py-2">Per day</CardDescription>
+              <SetNumberOfQueries
+                onSave={handleSave}
+                isOpen={isDialogOpen}
+                setIsOpen={setIsDialogOpen}
+              />
+            </div>
+            <CardTitle className="text-4xl">{maxQueryPerDay}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-xs text-muted-foreground">
@@ -79,7 +94,6 @@ export default function CardNoOfQueries({ date, maxQueryPerDay }: Props) {
             </div>
           </CardContent>
         </Card>
-        {/* <CardWithForm></CardWithForm> */}
       </main>
     </div>
   );

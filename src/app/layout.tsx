@@ -17,17 +17,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
         className={cn(
-          "min-h-screen w-full bg-white text-black flex",
+          "h-full w-full bg-white text-black flex flex-col",
           inter.className,
           {
             "debug-screens": process.env.NODE_ENV === "development",
           }
         )}
       >
-        {children}
+        <div className="flex-grow">{children}</div>
         <Toaster />
       </body>
     </html>
