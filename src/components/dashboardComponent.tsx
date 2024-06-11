@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardTitle } from "./ui/card";
-import CardNoOfQueries from "./cardNoOfQueries";
 import DatePickerPopover from "./ui/datePickerPopOver";
 import { format, parse } from "date-fns";
+import DashboardCards from "./cardNoOfQueries";
+import { toast } from "./ui/use-toast";
 
 export function MainSection() {
   const [date, setDate] = useState<Date | undefined>();
@@ -13,13 +14,14 @@ export function MainSection() {
   );
   const [kendraStatus, setKendraStatus] = useState<boolean>(true); // Initial status set to true
   const [maxQuery, setMaxQuery] = useState<number>(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const KENDRA_API = `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
 
+  console.log(KENDRA_API);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/threshold"
-        );
+        const response = await fetch(KENDRA_API);
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -32,7 +34,7 @@ export function MainSection() {
     };
 
     fetchData();
-  }, []);
+  }, [KENDRA_API]);
 
   const handleCancel = () => {
     setDate(undefined);
@@ -47,6 +49,42 @@ export function MainSection() {
     }
     setDate(undefined);
     setIsOpen(false);
+  };
+
+  const handleSave = (maxQueries: number) => {
+    console.log("Saving max queries:", maxQueries);
+
+    fetch(KENDRA_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        maxQuery: maxQueries,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to save data");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        toast({
+          title: "Save successfully",
+          variant: "default",
+        });
+        console.log("Data saved successfully:", data);
+        setMaxQuery(maxQueries);
+        setIsDialogOpen(false);
+      })
+      .catch((error) => {
+        console.error("Error saving data:", error);
+        toast({
+          title: "Error saving data",
+          variant: "destructive",
+        });
+      });
   };
 
   const selectedDateObj = parse(selectedDate, "yyyy/MM/dd", new Date());
@@ -73,9 +111,12 @@ export function MainSection() {
           handleDone={handleDone}
         />
       </div>
-      <CardNoOfQueries
+      <DashboardCards
         date={selectedDate || format(new Date(), "yyyy/MM/dd")}
         maxQueryPerDay={maxQuery}
+        handleSave={handleSave}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
       />
     </main>
   );
