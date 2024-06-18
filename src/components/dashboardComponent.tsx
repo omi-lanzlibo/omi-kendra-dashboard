@@ -13,28 +13,29 @@ export function MainSection() {
     format(new Date(), "yyyy/MM/dd")
   );
   const [kendraStatus, setKendraStatus] = useState<boolean>(true); // Initial status set to true
-  const [maxQuery, setMaxQuery] = useState<number>(0);
+  const [maxQueryData, setMaxQuery] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const KENDRA_API = `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
+  const NEXT_PUBLIC_KENDRA_API =
+    `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
 
-  console.log(KENDRA_API);
+  console.log(NEXT_PUBLIC_KENDRA_API);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(KENDRA_API);
+        const response = await fetch(NEXT_PUBLIC_KENDRA_API);
         if (!response.ok) {
-          throw new Error("Failed to fetch data");
+          throw new Error("Failed to fetch the data.");
         }
-        const data = await response.json();
-        setKendraStatus(data.data.manualOverride.turnOffKendra);
-        setMaxQuery(data.data.maxQuery);
+        const res = await response.json();
+        setKendraStatus(res.data.routingConfig.routeToKendra);
+        setMaxQuery(res.data.thresholdConfig.maxQuery);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching the data:", error);
       }
     };
-
     fetchData();
-  }, [KENDRA_API]);
+  }, [NEXT_PUBLIC_KENDRA_API]);
 
   const handleCancel = () => {
     setDate(undefined);
@@ -54,7 +55,7 @@ export function MainSection() {
   const handleSave = (maxQueries: number) => {
     console.log("Saving max queries:", maxQueries);
 
-    fetch(KENDRA_API, {
+    fetch(NEXT_PUBLIC_KENDRA_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -97,7 +98,7 @@ export function MainSection() {
       <div className="ml-6 flex items-center gap-2">
         <Card className="flex items-center space-x-4 rounded-md border p-3">
           <CardTitle className="text-sm font-medium leading-none">
-            Kendra Status: {kendraStatus ? "Off" : "On"}
+            Kendra Status: {kendraStatus ? "On" : "Off"}
           </CardTitle>
         </Card>
         <DatePickerPopover
@@ -113,7 +114,7 @@ export function MainSection() {
       </div>
       <DashboardCards
         date={selectedDate || format(new Date(), "yyyy/MM/dd")}
-        maxQueryPerDay={maxQuery}
+        maxQueryPerDay={maxQueryData}
         handleSave={handleSave}
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
