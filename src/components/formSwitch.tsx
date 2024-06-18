@@ -25,26 +25,29 @@ export function SwitchForm() {
     turnOffKendra: isKendraTurnOff,
   });
   const [isModified, setIsModified] = useState(false);
-  const KENDRA_API = `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
+  const NEXT_PUBLIC_KENDRA_API =
+    `${process.env.NEXT_PUBLIC_KENDRA_API}/threshold` || "";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(KENDRA_API);
+        const response = await fetch(NEXT_PUBLIC_KENDRA_API);
         if (!response.ok) {
           throw new Error("Failed to fetch the data.");
         }
         const result = await response.json();
         const data = result.data;
-        setInitialData(data.manualOverride);
-        setOverrideKendra(data.manualOverride.overrideKendraControl);
-        setKendraTurnOff(data.manualOverride.turnOffKendra);
+        setInitialData(data.thresholdConfig.manualOverride);
+        setOverrideKendra(
+          data.thresholdConfig.manualOverride.overrideKendraControl
+        );
+        setKendraTurnOff(data.thresholdConfig.manualOverride.turnOffKendra);
       } catch (error) {
         console.error("Error fetching the data:", error);
       }
     };
     fetchData();
-  }, [KENDRA_API]);
+  }, [NEXT_PUBLIC_KENDRA_API]);
 
   useEffect(() => {
     setIsModified(
@@ -67,7 +70,7 @@ export function SwitchForm() {
     }
 
     try {
-      const response = await fetch(KENDRA_API, {
+      const response = await fetch(NEXT_PUBLIC_KENDRA_API, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
