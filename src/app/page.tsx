@@ -1,16 +1,12 @@
 "use client";
-import { DashboardScreen } from "@/components/dashboard";
-// import LoginPage from "./login/page";
-// import { useEffect } from "react";
+
+import ProtectedPage from "./protected";
+import { LoginForm } from "@/components/login_component";
 
 export default function Home() {
-  // useEffect(() => {
-  //   // Check if the user is logged in
-  //   const isLoggedIn = localStorage.getItem("isLoggedIn");
-  //   if (isLoggedIn) {
-  //     window.location.href = "/dashboard"; // Redirect client-side
-  //   }
-  // }, []);
-  // chore
-  return <DashboardScreen></DashboardScreen>;
+  return (
+    <ProtectedPage>
+      <LoginForm></LoginForm>
+    </ProtectedPage>
+  );
 }

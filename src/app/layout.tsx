@@ -27,7 +27,9 @@ export default function RootLayout({
           }
         )}
       >
-        <div className="flex-grow">{children}</div>
+        <div className="flex-grow flex items-center justify-center">
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>
