@@ -2,24 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import useAuth from "../hooks/userFirebaseAuth"; // Adjust path as necessary
+import useFirebaseAuth from "@/hooks/userFirebaseAuth";
 import LoadingScreen from "@/components/loadingScreen";
 
 const ProtectedPage: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useFirebaseAuth();
   const router = useRouter();
   const [redirecting, setRedirecting] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !redirecting) {
       if (!user) {
         // User is not logged in, redirect to login page
-        if (!redirecting) {
-          setRedirecting(false);
-          router.push("/login");
-        }
+        setRedirecting(true);
+        router.push("/login");
       } else if (
         window.location.pathname === "/login" ||
         window.location.pathname === "/"
