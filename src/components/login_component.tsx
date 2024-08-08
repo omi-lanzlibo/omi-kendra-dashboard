@@ -1,7 +1,12 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  AuthError,
+} from "firebase/auth";
 import { auth } from "@/lib/firebaseConfig"; // Adjust the path as necessary
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +23,6 @@ import { toast } from "./ui/use-toast";
 // Define a mapping of Firebase Auth error codes to custom messages
 const errorMessages: { [key: string]: string } = {
   "auth/invalid-credential": "Invalid credential",
-  "auth/user-not-found": "No user found with this email",
-  "auth/wrong-password": "Incorrect password",
   "auth/too-many-requests":
     "Too many failed login attempts. Please try again later.",
 };
@@ -29,7 +32,18 @@ export function LoginForm() {
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
 
-  const handleLogin = async (event: React.FormEvent) => {
+  // Use effect to handle authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/dashboard");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!email || !password) {
@@ -42,13 +56,15 @@ export function LoginForm() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
       toast({
         title: "Login successfully.",
         variant: "default",
       });
-    } catch (error: any) {
-      const errorMessage = errorMessages[error.code] || error.message;
+      router.push("/dashboard");
+    } catch (error) {
+      const firebaseError = error as AuthError; // Cast error to AuthError type
+      const errorMessage =
+        errorMessages[firebaseError.code] || firebaseError.message;
       toast({
         title: errorMessage,
         variant: "default",
