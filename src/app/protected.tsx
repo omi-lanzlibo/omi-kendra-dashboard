@@ -2,42 +2,37 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// Adjust path as necessary
+import useAuth from "../hooks/userFirebaseAuth"; // Adjust path as necessary
 import LoadingScreen from "@/components/loadingScreen";
-import useAuth from "@/hooks/userFirebaseAuth";
 
 const ProtectedPage: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [showLoading, setShowLoading] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
 
   useEffect(() => {
-    const delay = setTimeout(() => {
-      setShowLoading(false);
-    }, 500); // Delay in milliseconds (e.g., 500ms)
-
-    return () => clearTimeout(delay);
-  }, []);
-
-  useEffect(() => {
-    if (!loading && !showLoading) {
+    if (!loading) {
       if (!user) {
         // User is not logged in, redirect to login page
-        router.push("/login");
+        if (!redirecting) {
+          setRedirecting(false);
+          router.push("/login");
+        }
       } else if (
         window.location.pathname === "/login" ||
         window.location.pathname === "/"
       ) {
         // User is logged in but trying to access the login page
+        setRedirecting(true);
         router.push("/dashboard");
       }
     }
-  }, [user, loading, showLoading, router]);
+  }, [user, loading, router, redirecting]);
 
-  // Show the loading screen while checking authentication state and delay
-  if (loading || showLoading) {
+  // Show the loading screen while checking authentication state
+  if (loading || redirecting) {
     return <LoadingScreen />;
   }
 
