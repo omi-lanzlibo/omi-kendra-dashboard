@@ -1,12 +1,13 @@
 "use client";
 
-import ProtectedPage from "./protected";
+import { ProtectedRoute } from "@/components/protected";
+
 import { LoginForm } from "@/components/login_component";
 
 export default function Home() {
   return (
-    <ProtectedPage>
+    <ProtectedRoute>
       <LoginForm></LoginForm>
-    </ProtectedPage>
+    </ProtectedRoute>
   );
 }

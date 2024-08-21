@@ -1,6 +1,7 @@
+"use client";
+
 import Link from "next/link";
 import {
-  CircleUser,
   LayoutDashboardIcon,
   SettingsIcon,
   ToggleRight,
@@ -9,6 +10,8 @@ import {
 
 import MainSection from "./dashboardComponent";
 import ProfileSetting from "./profileSettings";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function DashboardScreen() {
   return (
@@ -53,7 +56,7 @@ export function DashboardScreen() {
         <header className="flex h-14 items-center justify-end gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           <ProfileSetting />
         </header>
-        <MainSection></MainSection>
+        <MainSection />
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
 import { KendraSwitchScreen } from "@/components/kendraSwitchPage";
-import ProtectedPage from "../protected";
+import { ProtectedRoute } from "@/components/protected";
 
 export default function Toggle() {
   return (
-    <ProtectedPage>
+    <ProtectedRoute>
       <KendraSwitchScreen></KendraSwitchScreen>
-    </ProtectedPage>
+    </ProtectedRoute>
   );
 }

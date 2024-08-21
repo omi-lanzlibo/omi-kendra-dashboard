@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebaseConfig"; // Adjust the path as necessary
-import { toast } from "@/components/ui/use-toast"; // Adjust the path as necessary
+import { toast } from "@/components/ui/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,29 +13,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { CircleUser } from "lucide-react";
-import { onAuthStateChanged } from "firebase/auth";
+
+// Assuming the email is stored in localStorage or similar
+const getUserEmail = () => {
+  return localStorage.getItem("userEmail");
+};
 
 const ProfileSetting = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email);
-      } else {
-        setUserEmail(null);
-      }
-    });
-
-    return () => unsubscribe();
+    // Retrieve email from localStorage or similar
+    const email = getUserEmail();
+    setUserEmail(email);
   }, []);
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      // Clear the user data from localStorage or similar
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userEmail");
+
       toast({
-        title: "Logout successfully",
+        title: "Logout successful",
         variant: "default",
       });
       router.push("/login"); // Redirect to login page after sign out
@@ -59,7 +58,7 @@ const ProfileSetting = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Profile</DropdownMenuLabel>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {userEmail && (
           <DropdownMenuItem disabled>
@@ -67,7 +66,7 @@ const ProfileSetting = () => {
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem>My Account</DropdownMenuItem>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
         <DropdownMenuItem>Settings</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>Logout</DropdownMenuItem>

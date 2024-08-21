@@ -1,23 +1,16 @@
+"use client";
 import Link from "next/link";
 import {
-  CircleUser,
   LayoutDashboardIcon,
   SettingsIcon,
   ToggleRight,
   WalletCards,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { SwitchForm } from "./formSwitch";
 import ProfileSetting from "./profileSettings";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function KendraSwitchScreen() {
   return (
@@ -69,7 +62,7 @@ export function KendraSwitchScreen() {
               Manual Override
             </h1>
           </div>
-          <SwitchForm></SwitchForm>
+          <SwitchForm />
         </main>
       </div>
     </div>

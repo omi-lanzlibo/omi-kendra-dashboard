@@ -1,74 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  AuthError,
-} from "firebase/auth";
-import { auth } from "@/lib/firebaseConfig"; // Adjust the path as necessary
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
+import { useMutation, gql } from "@apollo/client";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
-import { toast } from "./ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-// Define a mapping of Firebase Auth error codes to custom messages
-const errorMessages: { [key: string]: string } = {
-  "auth/invalid-credential": "Invalid credential",
-  "auth/too-many-requests":
-    "Too many failed login attempts. Please try again later.",
-};
+const GET_TOKEN = gql`
+  mutation getToken($email: String!, $password: String!) {
+    tokenCreate(email: $email, password: $password) {
+      token
+      user {
+        id
+        email
+        firstName
+        lastName
+        isStaff
+      }
+    }
+  }
+`;
 
 export function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [getToken] = useMutation(GET_TOKEN);
   const router = useRouter();
 
-  // Use effect to handle authentication state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/dashboard");
-      }
-    });
-
-    return () => unsubscribe();
+    // Check if token exists in localStorage, and redirect to dashboard if so
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      router.push("/dashboard");
+    }
   }, [router]);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!email || !password) {
-      toast({
-        title: "Email and Password are required.",
-        variant: "default",
-      });
-      return;
-    }
+    setLoading(true); // Set loading to true when starting login
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Login successfully.",
-        variant: "default",
-      });
-      router.push("/dashboard");
+      const { data } = await getToken({ variables: { email, password } });
+
+      if (data?.tokenCreate) {
+        const { firstName, token } = data.tokenCreate.user;
+
+        if (firstName === "Kendra") {
+          // Store the token in localStorage
+          localStorage.setItem("authToken", data.tokenCreate.token);
+          localStorage.setItem("userEmail", data.tokenCreate.user.email);
+
+          toast({
+            title: "Login successful!",
+            variant: "default",
+          });
+
+          // Navigate to dashboard
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 500); // Optional delay before redirection
+        } else {
+          toast({
+            title: "Unauthorized access.",
+            variant: "destructive",
+          });
+        }
+      }
     } catch (error) {
-      const firebaseError = error as AuthError; // Cast error to AuthError type
-      const errorMessage =
-        errorMessages[firebaseError.code] || firebaseError.message;
       toast({
-        title: errorMessage,
-        variant: "default",
+        title: "Login failed.",
+        variant: "destructive",
       });
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -87,7 +101,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="kendra@email.com"
+              placeholder="riderlanz@yopmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -103,8 +117,8 @@ export function LoginForm() {
               required
             />
           </div>
-          <Button type="submit" className="w-full">
-            Login
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
       </CardContent>

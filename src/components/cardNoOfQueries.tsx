@@ -33,12 +33,11 @@ export default function DashboardCards({
 }: Props) {
   const [responseItems, setResponseItems] = useState<ResponseItem[]>([]);
   const [displayDate, setDisplayDate] = useState<string>("");
-
+  const NEXT_PUBLIC_KENDRA_API =
+    `${process.env.NEXT_PUBLIC_KENDRA_API}/search-count/${date}` || "";
   const callAPI = async (date: string) => {
     try {
-      const res = await fetch(
-        `https://m6kn45igy3.execute-api.ap-southeast-1.amazonaws.com/stg/kendra/search-count/${date}`
-      );
+      const res = await fetch(NEXT_PUBLIC_KENDRA_API);
       const data = await res.json();
 
       if (data && data.data && data.data.Items && data.data.date) {
