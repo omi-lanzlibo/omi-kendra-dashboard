@@ -12,7 +12,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const currentPath = window.location.pathname; // Get the current path
 
     if (token) {
-      if (currentPath === "/") {
+      if (currentPath === "/" || currentPath === "/login") {
         // Redirect authenticated users from login to dashboard
         router.push("/dashboard");
         return;
@@ -20,7 +20,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       // Allow access to /switch and /dashboard if authenticated
       setLoading(false);
     } else {
-      if (currentPath !== "/") {
+      if (currentPath !== "/" && currentPath !== "/login") {
         // Redirect non-authenticated users to login if they try to access protected routes
         router.push("/");
         return;
