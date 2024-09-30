@@ -6,8 +6,8 @@ import { LoginForm } from "@/components/login_component";
 
 export default function Home() {
   return (
-    <ProtectedRoute>
-      <LoginForm></LoginForm>
-    </ProtectedRoute>
+    // <ProtectedRoute>
+    <LoginForm></LoginForm>
+    // </ProtectedRoute>
   );
 }

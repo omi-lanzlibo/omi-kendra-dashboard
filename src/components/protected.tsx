@@ -5,23 +5,34 @@ import { useRouter } from "next/navigation";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(true); // Add a loading state
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const currentPath = window.location.pathname; // Get the current path
 
     if (token) {
-      if (currentPath === "/login") {
-        // If the user is on the login page but already has a token, redirect to the dashboard
+      if (currentPath === "/") {
+        // Redirect authenticated users from login to dashboard
         router.push("/dashboard");
+        return;
       }
+      // Allow access to /switch and /dashboard if authenticated
+      setLoading(false);
     } else {
-      if (currentPath !== "/login") {
-        // If the user is not on the login page and doesn't have a token, redirect to the login page
-        router.push("/login");
+      if (currentPath !== "/") {
+        // Redirect non-authenticated users to login if they try to access protected routes
+        router.push("/");
+        return;
       }
+      // Allow access to the login page if not authenticated
+      setLoading(false);
     }
   }, [router]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Display a loading state while checking authentication
+  }
 
   return <>{children}</>;
 }

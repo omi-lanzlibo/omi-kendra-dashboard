@@ -20,16 +20,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <Head>
-        {/* Preload links or other meta tags */}
-        <link
-          rel="preload"
-          href="https://d3qsll4vd5jjt6.cloudfront.net/_next/static/media/a34f9d1faa5f3315-s.p.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </Head>
       <body
         className={cn(
           "h-full w-full bg-white text-black flex flex-col",

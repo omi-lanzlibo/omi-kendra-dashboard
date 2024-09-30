@@ -37,14 +37,6 @@ export function LoginForm() {
   const [getToken] = useMutation(GET_TOKEN);
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if token exists in localStorage, and redirect to dashboard if so
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      router.push("/dashboard");
-    }
-  }, [router]);
-
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true); // Set loading to true when starting login
