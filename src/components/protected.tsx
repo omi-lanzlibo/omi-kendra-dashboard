@@ -17,14 +17,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         router.push("/dashboard");
         return;
       }
-      // Allow access to /switch and /dashboard if authenticated
-      setLoading(false);
+      setLoading(false); // Allow access to other pages if authenticated
     } else {
-      if (
-        currentPath === "/switch" ||
-        (currentPath !== "/" && currentPath !== "/login")
-      ) {
-        // Redirect non-authenticated users trying to access /switch or other protected routes to login
+      if (currentPath !== "/") {
+        // Redirect non-authenticated users to login if they try to access any route other than "/"
         router.push("/");
         return;
       }
