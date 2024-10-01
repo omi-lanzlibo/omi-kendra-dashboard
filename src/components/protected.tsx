@@ -13,20 +13,22 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (token) {
       if (currentPath === "/" || currentPath === "/login") {
-        // Redirect authenticated users from login to dashboard
+        // Redirect authenticated users from home or login to dashboard
         router.push("/dashboard");
         return;
       }
       // Allow access to /switch and /dashboard if authenticated
       setLoading(false);
     } else {
-      if (currentPath !== "/" && currentPath !== "/login") {
-        // Redirect non-authenticated users to login if they try to access protected routes
+      if (
+        currentPath === "/switch" ||
+        (currentPath !== "/" && currentPath !== "/login")
+      ) {
+        // Redirect non-authenticated users trying to access /switch or other protected routes to login
         router.push("/");
         return;
       }
-      // Allow access to the login page if not authenticated
-      setLoading(false);
+      setLoading(false); // Allow access to the login page if not authenticated
     }
   }, [router]);
 
