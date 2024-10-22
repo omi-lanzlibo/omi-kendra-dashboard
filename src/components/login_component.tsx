@@ -38,7 +38,7 @@ const GET_TOKEN = gql`
           code
           name
         }
-        promoCreator // Added promoCreator field
+        promoCreator
       }
     }
   }
