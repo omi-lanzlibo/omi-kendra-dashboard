@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
 import {
   Card,
@@ -22,9 +22,23 @@ const GET_TOKEN = gql`
       user {
         id
         email
+        defaultMall {
+          id
+          name
+        }
         firstName
+        status
         lastName
         isStaff
+        userType
+        accessGroup {
+          smopUsertypeCode
+        }
+        userPermissions {
+          code
+          name
+        }
+        promoCreator // Added promoCreator field
       }
     }
   }
@@ -45,12 +59,18 @@ export function LoginForm() {
       const { data } = await getToken({ variables: { email, password } });
 
       if (data?.tokenCreate) {
-        const { firstName, token } = data.tokenCreate.user;
+        const { token, user } = data.tokenCreate;
+        const { accessGroup, promoCreator } = user;
 
-        if (firstName === "Kendra") {
+        // Check if the smopUsertypeCode is "OMI_ADMIN" and promoCreator is "APP_DEVELOPMENT"
+        const hasAdminAccess =
+          accessGroup.smopUsertypeCode === "OMI_ADMIN" &&
+          promoCreator === "APP_DEVELOPMENT";
+
+        if (hasAdminAccess) {
           // Store the token in localStorage
-          localStorage.setItem("authToken", data.tokenCreate.token);
-          localStorage.setItem("userEmail", data.tokenCreate.user.email);
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("userEmail", user.email);
 
           toast({
             title: "Login successful!",
@@ -64,6 +84,7 @@ export function LoginForm() {
         } else {
           toast({
             title: "Unauthorized access.",
+            description: "You do not have the required permissions.",
             variant: "destructive",
           });
         }
